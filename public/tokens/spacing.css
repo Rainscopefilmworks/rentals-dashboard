@@ -1,0 +1,30 @@
+/* ============================================================
+   RAINSCOPE — SPACING & RADIUS TOKENS
+   ============================================================ */
+
+:root {
+  /* ---- Spacing scale ---- */
+  --space-1:   0.25rem;
+  --space-2:   0.5rem;
+  --space-3:   0.75rem;
+  --space-4:   1rem;
+  --space-5:   1.5rem;
+  --space-6:   2rem;
+  --space-8:   2.5rem;
+  --space-10:  3rem;
+  --space-12:  4rem;
+
+  /* ---- Section / container padding (fluid, from site) ---- */
+  --container-pad-y: clamp(2.5rem, 6vw, 4rem);
+  --container-pad-x: clamp(1.25rem, 4vw, 3.5rem);
+  --header-h:        80px;
+  --content-max:     1200px;
+
+  /* ---- Radii ---- */
+  --radius-xs:   4px;   /* small inputs, variant pills, tags */
+  --radius-sm:   6px;   /* buttons, form inputs */
+  --radius-md:   8px;   /* video tiles, media */
+  --radius-lg:   12px;  /* glass panels, cards */
+  --radius-xl:   16px;  /* modals, panel content */
+  --radius-pill: 999px; /* chips, cart toggle, badges */
+}

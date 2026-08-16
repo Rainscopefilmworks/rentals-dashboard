@@ -1,0 +1,4 @@
+/* Rainscope webfonts — TEMPORARY per brand doc (final typography TBD).
+   Outfit = primary/display + body/UI. Space Grotesk = technical labels.
+   Loaded from Google Fonts (these ARE Google Fonts, so no substitution needed). */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');

@@ -1,0 +1,42 @@
+/* ============================================================
+   RAINSCOPE — EFFECTS: shadows, glows, motion, blur
+   Cinematic depth: inset top highlight + stacked soft shadows,
+   accent glow on hover. Glass surfaces use backdrop blur.
+   ============================================================ */
+
+:root {
+  /* ---- Elevation (cinematic, stacked) ---- */
+  --shadow-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 2px 8px rgba(0, 0, 0, 0.18),
+    0 12px 40px rgba(0, 0, 0, 0.22);
+  --shadow-panel-hover:
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    0 0 16px 0 var(--color-accent-glow);
+  --shadow-modal:        0 24px 64px rgba(0, 0, 0, 0.6);
+  --shadow-float:        0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* ---- Accent glow (focus, CTAs) ---- */
+  --glow-accent:         0 4px 20px var(--color-accent-glow);
+  --glow-accent-ring:    0 0 10px var(--color-accent-glow);
+
+  /* ---- Blur ---- */
+  --blur-glass:          16px;  /* glass panels */
+  --blur-header:         12px;  /* fixed header */
+
+  /* ---- Borders ---- */
+  --border-card:         1px solid var(--color-card-border);
+  --border-hairline:     1px solid rgba(255, 255, 255, 0.05); /* @kind other */
+
+  /* ---- Motion (cinematic easing) ---- */
+  --ease-standard:       cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-out-expo:       cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --transition-fast:     0.2s var(--ease-standard);
+  --transition-normal:   0.3s var(--ease-standard);
+  --transition-slow:     0.6s var(--ease-standard);
+
+  /* ---- Lift distances (hover translate) ---- */
+  --lift-sm:            -2px;
+  --lift-md:            -4px;
+  --lift-lg:            -6px;
+}

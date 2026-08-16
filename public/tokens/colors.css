@@ -1,0 +1,84 @@
+/* ============================================================
+   RAINSCOPE — COLOR TOKENS
+   Dark, premium, cinematic. Four division "lanes", each with a
+   deep background + one bright accent. Filmworks is the default.
+   Source of truth: rainscope/css/style.css
+   ============================================================ */
+
+:root {
+  /* ---- Raw division palette (Coolors) ---- */
+  --rs-evergreen:        #071816; /* Filmworks background */
+  --rs-evergreen-deep:   #040c0b; /* darker shade / footers */
+  --rs-spring-green:     #31e880; /* Filmworks accent */
+  --rs-onyx:             #0f1013; /* Rentals / Shop background */
+  --rs-onyx-deep:        #090a0c;
+  --rs-ocean-blue:       #0094c6; /* Rentals / Shop accent */
+  --rs-black:            #000000; /* Live background */
+  --rs-lavender:         #ba8fff; /* Live accent */
+  --rs-landing-bg:       #050507; /* Umbrella landing only */
+
+  /* ---- Neutrals / ink ---- */
+  --rs-white:            #ffffff;
+  --rs-ink-secondary-film:  #8fa8a4; /* secondary text on evergreen */
+  --rs-ink-secondary-gear:  #9ea5b4; /* secondary text on onyx */
+  --rs-ink-secondary-live:  #b8a8d4; /* secondary text on black */
+
+  /* ---- Semantic / status ---- */
+  --rs-danger:           #ef4444;
+  --rs-success:          #10b981;
+  --rs-star:             #fbbc04;
+  --rs-cart-alert:       #ff3366;
+
+  /* ============================================================
+     SEMANTIC ALIASES — default lane = FILMWORKS
+     Themes below remap these. Components reference ONLY these.
+     ============================================================ */
+  --color-bg-base:        var(--rs-evergreen);
+  --color-bg-dark:        var(--rs-evergreen-deep);
+  --color-accent:         var(--rs-spring-green);
+  --color-accent-rgb:     49, 232, 128;
+  --color-accent-glow:    rgba(49, 232, 128, 0.2);
+  --color-text-primary:   var(--rs-white);
+  --color-text-secondary: var(--rs-ink-secondary-film);
+
+  --color-card-bg:        rgba(7, 24, 22, 0.55);
+  --color-card-border:    rgba(49, 232, 128, 0.15);
+  --color-focus-ring:     var(--rs-spring-green);
+  --color-modal-bg:       rgba(7, 24, 22, 0.97);
+  --color-modal-backdrop: rgba(7, 18, 17, 0.8);
+}
+
+/* ---- RENTALS & SHOP: Onyx + Ocean blue ---- */
+.theme-rentals,
+.theme-shop {
+  --color-bg-base:        var(--rs-onyx);
+  --color-bg-dark:        var(--rs-onyx-deep);
+  --color-accent:         var(--rs-ocean-blue);
+  --color-accent-rgb:     0, 148, 198;
+  --color-accent-glow:    rgba(0, 148, 198, 0.15);
+  --color-text-primary:   var(--rs-white);
+  --color-text-secondary: var(--rs-ink-secondary-gear);
+
+  --color-card-bg:        rgba(22, 25, 32, 0.55);
+  --color-card-border:    rgba(0, 148, 198, 0.12);
+  --color-focus-ring:     var(--rs-ocean-blue);
+  --color-modal-bg:       rgba(22, 25, 32, 0.97);
+  --color-modal-backdrop: rgba(9, 10, 12, 0.85);
+}
+
+/* ---- LIVE: Black + Bright lavender ---- */
+.theme-live {
+  --color-bg-base:        var(--rs-black);
+  --color-bg-dark:        var(--rs-black);
+  --color-accent:         var(--rs-lavender);
+  --color-accent-rgb:     186, 143, 255;
+  --color-accent-glow:    rgba(186, 143, 255, 0.2);
+  --color-text-primary:   var(--rs-white);
+  --color-text-secondary: var(--rs-ink-secondary-live);
+
+  --color-card-bg:        rgba(20, 10, 30, 0.5);
+  --color-card-border:    rgba(186, 143, 255, 0.15);
+  --color-focus-ring:     var(--rs-lavender);
+  --color-modal-bg:       rgba(20, 10, 30, 0.97);
+  --color-modal-backdrop: rgba(0, 0, 0, 0.85);
+}

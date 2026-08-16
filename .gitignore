@@ -1,0 +1,4 @@
+node_modules/
+.env
+.design-system-ref/
+.DS_Store
