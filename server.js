@@ -50,7 +50,7 @@ const QUERIES = {
     SELECT ${BASE_COLUMNS}
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
-      AND p.projects_dates_use_end BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
+      AND p.projects_dates_use_end BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 DAY
     ORDER BY p.projects_dates_use_end ASC
   `,
 };
@@ -182,7 +182,7 @@ app.get('/', async (req, res) => {
       })}
       ${renderSection({
         title: 'Coming Back',
-        subtitle: 'Returning within the next 7 days',
+        subtitle: 'Returning today or tomorrow',
         icon: '↙',
         orders: comingBack,
         dateField: 'projects_dates_use_end',
