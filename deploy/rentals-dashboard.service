@@ -1,0 +1,13 @@
+[Unit]
+Description=Rentals Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=%h/rentals-dashboard
+ExecStart=/usr/bin/env node server.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
