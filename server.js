@@ -53,15 +53,23 @@ const QUERIES = {
       AND p.projects_dates_use_end BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 DAY
     ORDER BY p.projects_dates_use_end ASC
   `,
+  missingItems: `
+    SELECT ${BASE_COLUMNS}
+    ${BASE_JOIN}
+    WHERE p.projects_deleted = 0
+      AND s.projectsStatuses_name = 'Missing Items'
+    ORDER BY p.projects_dates_use_end DESC
+  `,
 };
 
 async function fetchOrders() {
-  const [[goingOut], [currentlyOut], [comingBack]] = await Promise.all([
+  const [[goingOut], [currentlyOut], [comingBack], [missingItems]] = await Promise.all([
     pool.query(QUERIES.goingOut),
     pool.query(QUERIES.currentlyOut),
     pool.query(QUERIES.comingBack),
+    pool.query(QUERIES.missingItems),
   ]);
-  return { goingOut, currentlyOut, comingBack };
+  return { goingOut, currentlyOut, comingBack, missingItems };
 }
 
 function hashOrders(data) {
@@ -119,16 +127,16 @@ function escapeHtml(str) {
   }[c]));
 }
 
-function renderSection({ title, subtitle, icon, orders, dateField, dateLabel }) {
+function renderSection({ title, subtitle, icon, orders, dateField, dateLabel, alert }) {
   return `
   <section class="glass-panel section-panel">
     <div class="section-header">
-      <div class="section-icon">${icon}</div>
+      <div class="section-icon${alert ? ' section-icon-alert' : ''}">${icon}</div>
       <div>
         <h2>${title}</h2>
         <p class="section-subtitle">${subtitle}</p>
       </div>
-      <span class="badge badge-count">${orders.length}</span>
+      <span class="badge badge-count${alert ? ' badge-count-alert' : ''}">${orders.length}</span>
     </div>
     <table>
       <thead>
@@ -147,7 +155,7 @@ function renderSection({ title, subtitle, icon, orders, dateField, dateLabel }) 
 
 app.get('/', async (req, res) => {
   try {
-    const { goingOut, currentlyOut, comingBack } = await fetchOrders();
+    const { goingOut, currentlyOut, comingBack, missingItems } = await fetchOrders();
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -187,6 +195,15 @@ app.get('/', async (req, res) => {
         orders: comingBack,
         dateField: 'projects_dates_use_end',
         dateLabel: 'Returns',
+      })}
+      ${renderSection({
+        title: 'Missing Items',
+        subtitle: 'Flagged after return, needs resolution',
+        icon: '⚠',
+        orders: missingItems,
+        dateField: 'projects_dates_use_end',
+        dateLabel: 'Returned',
+        alert: true,
       })}
     </main>
     <footer class="page-footer">
