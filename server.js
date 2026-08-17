@@ -30,12 +30,15 @@ const BASE_JOIN = `
   LEFT JOIN projectsStatuses s ON s.projectsStatuses_id = p.projectsStatuses_id
 `;
 
+const EXCLUDE_MISSING_ITEMS = `AND (s.projectsStatuses_name IS NULL OR s.projectsStatuses_name <> 'Missing Items')`;
+
 const QUERIES = {
   goingOut: `
     SELECT ${BASE_COLUMNS}
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
       AND p.projects_dates_use_start BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
+      ${EXCLUDE_MISSING_ITEMS}
     ORDER BY p.projects_dates_use_start ASC
   `,
   currentlyOut: `
@@ -44,6 +47,7 @@ const QUERIES = {
     WHERE p.projects_deleted = 0
       AND p.projects_dates_use_start <= CURDATE()
       AND p.projects_dates_use_end >= CURDATE()
+      ${EXCLUDE_MISSING_ITEMS}
     ORDER BY p.projects_dates_use_end ASC
   `,
   comingBack: `
@@ -51,6 +55,7 @@ const QUERIES = {
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
       AND p.projects_dates_use_end BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 DAY
+      ${EXCLUDE_MISSING_ITEMS}
     ORDER BY p.projects_dates_use_end ASC
   `,
   missingItems: `
