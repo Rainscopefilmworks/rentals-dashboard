@@ -31,6 +31,7 @@ const BASE_JOIN = `
 `;
 
 const EXCLUDE_MISSING_ITEMS = `AND (s.projectsStatuses_name IS NULL OR s.projectsStatuses_name <> 'Missing Items')`;
+const EXCLUDE_RETURNED = `AND (s.projectsStatuses_name IS NULL OR s.projectsStatuses_name <> 'Returned')`;
 
 const QUERIES = {
   goingOut: `
@@ -39,6 +40,7 @@ const QUERIES = {
     WHERE p.projects_deleted = 0
       AND p.projects_dates_use_start BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
       ${EXCLUDE_MISSING_ITEMS}
+      ${EXCLUDE_RETURNED}
     ORDER BY p.projects_dates_use_start ASC
   `,
   currentlyOut: `
@@ -46,8 +48,9 @@ const QUERIES = {
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
       AND p.projects_dates_use_start <= CURDATE()
-      AND p.projects_dates_use_end >= CURDATE()
+      AND p.projects_dates_use_end > CURDATE() + INTERVAL 1 DAY
       ${EXCLUDE_MISSING_ITEMS}
+      ${EXCLUDE_RETURNED}
     ORDER BY p.projects_dates_use_end ASC
   `,
   comingBack: `
@@ -89,6 +92,7 @@ function formatDate(value) {
 
 const STATUS_VARIANTS = {
   booked: 'blue',
+  confirmed: 'confirmed',
   'checked out': 'green',
   returned: 'tan',
   cancelled: 'white',
@@ -106,18 +110,20 @@ function renderStatusPill(name) {
   return `<span class="badge badge-status badge-status-${statusVariant(name)}">${escapeHtml(name)}</span>`;
 }
 
-function renderRows(orders, dateField) {
+function renderRows(orders, dateField, dateLabel) {
   if (orders.length === 0) {
-    return '<tr class="empty-row"><td colspan="3">No orders in this window</td></tr>';
+    return '<div class="order-row order-row-empty">No orders in this window</div>';
   }
   return orders
     .map(
       (o) => `
-    <tr>
-      <td class="col-name">${escapeHtml(o.projects_name)}<span class="col-id">#${o.projects_id}</span></td>
-      <td>${renderStatusPill(o.projectsStatuses_name)}</td>
-      <td>${formatDate(o[dateField])}</td>
-    </tr>`
+    <div class="order-row">
+      <div class="order-name">${escapeHtml(o.projects_name)}</div>
+      <div class="order-meta">
+        ${renderStatusPill(o.projectsStatuses_name)}
+        <span class="order-date"><span class="order-date-label">${dateLabel}</span>${formatDate(o[dateField])}</span>
+      </div>
+    </div>`
     )
     .join('');
 }
@@ -143,18 +149,11 @@ function renderSection({ title, subtitle, icon, orders, dateField, dateLabel, al
       </div>
       <span class="badge badge-count${alert ? ' badge-count-alert' : ''}">${orders.length}</span>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Order</th>
-          <th>Status</th>
-          <th>${dateLabel}</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${renderRows(orders, dateField)}
-      </tbody>
-    </table>
+    <div class="order-list-wrap">
+      <div class="order-list">
+        ${renderRows(orders, dateField, dateLabel)}
+      </div>
+    </div>
   </section>`;
 }
 
@@ -219,6 +218,51 @@ app.get('/', async (req, res) => {
   <script>
     const events = new EventSource('/events');
     events.onmessage = () => location.reload();
+
+    (function autoScrollPanels() {
+      const SPEED_PX_PER_SEC = 26;
+      const END_PAUSE_MS = 2600;
+
+      const EDGE_TOLERANCE_PX = 1;
+
+      function run(el) {
+        let dir = 1;
+        let paused = false;
+        let last = performance.now();
+
+        function scheduleResume(nextDir) {
+          paused = true;
+          dir = nextDir;
+          setTimeout(() => {
+            paused = false;
+            last = performance.now();
+          }, END_PAUSE_MS);
+        }
+
+        function tick(now) {
+          const dt = now - last;
+          last = now;
+          const max = el.scrollHeight - el.clientHeight;
+
+          if (!paused && max > 0) {
+            const next = el.scrollTop + (dir * SPEED_PX_PER_SEC * dt) / 1000;
+            el.scrollTop = Math.max(0, Math.min(max, next));
+
+            if (dir === 1 && el.scrollTop >= max - EDGE_TOLERANCE_PX) {
+              scheduleResume(-1);
+            } else if (dir === -1 && el.scrollTop <= EDGE_TOLERANCE_PX) {
+              scheduleResume(1);
+            }
+          }
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      document.querySelectorAll('.order-list-wrap').forEach((el) => {
+        if (el.scrollHeight > el.clientHeight + 4) run(el);
+      });
+    })();
   </script>
 </body>
 </html>`;
