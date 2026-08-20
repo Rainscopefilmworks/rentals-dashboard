@@ -49,6 +49,7 @@ const QUERIES = {
     WHERE p.projects_deleted = 0
       AND p.projects_dates_use_start <= CURDATE()
       AND p.projects_dates_use_end > CURDATE() + INTERVAL 1 DAY
+      AND LOWER(s.projectsStatuses_name) = 'checked out'
       ${EXCLUDE_MISSING_ITEMS}
       ${EXCLUDE_RETURNED}
     ORDER BY p.projects_dates_use_end ASC
