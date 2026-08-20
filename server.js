@@ -32,6 +32,7 @@ const BASE_JOIN = `
 
 const EXCLUDE_MISSING_ITEMS = `AND (s.projectsStatuses_name IS NULL OR s.projectsStatuses_name <> 'Missing Items')`;
 const EXCLUDE_RETURNED = `AND (s.projectsStatuses_name IS NULL OR s.projectsStatuses_name <> 'Returned')`;
+const EXCLUDE_CHECKED_OUT = `AND (s.projectsStatuses_name IS NULL OR LOWER(s.projectsStatuses_name) <> 'checked out')`;
 
 const QUERIES = {
   goingOut: `
@@ -41,6 +42,7 @@ const QUERIES = {
       AND p.projects_dates_use_start BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
       ${EXCLUDE_MISSING_ITEMS}
       ${EXCLUDE_RETURNED}
+      ${EXCLUDE_CHECKED_OUT}
     ORDER BY p.projects_dates_use_start ASC
   `,
   currentlyOut: `
