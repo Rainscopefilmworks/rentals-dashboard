@@ -99,14 +99,15 @@ body {
 }
 
 .order-list-wrap {
+  /* Clips .order-list, which is animated via a CSS transform (see the
+     inline script) rather than scrolled natively. */
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
+  overflow: hidden;
 }
 
-.order-list-wrap::-webkit-scrollbar {
-  display: none;
+.order-list {
+  will-change: transform;
 }
 
 .section-header {

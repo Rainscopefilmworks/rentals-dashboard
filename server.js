@@ -223,51 +223,69 @@ app.get('/', async (req, res) => {
     events.onmessage = () => location.reload();
 
     (function autoScrollPanels() {
+      // Driven by a CSS transform animation, not JS-stepped scrollTop:
+      // requestAnimationFrame (and therefore any rAF-driven scrollTop loop)
+      // gets throttled by the browser for windows without OS focus, which
+      // describes a kiosk window sitting on a monitor nobody's actively
+      // using. A CSS animation keeps running on the compositor regardless
+      // of window focus.
       const SPEED_PX_PER_SEC = 26;
       const END_PAUSE_MS = 2600;
 
-      const EDGE_TOLERANCE_PX = 1;
-
-      function run(el) {
-        let dir = 1;
-        let paused = false;
-        let last = performance.now();
-
-        function scheduleResume(nextDir) {
-          paused = true;
-          dir = nextDir;
-          setTimeout(() => {
-            paused = false;
-            last = performance.now();
-          }, END_PAUSE_MS);
-        }
-
-        function tick(now) {
-          const dt = now - last;
-          last = now;
-          const max = el.scrollHeight - el.clientHeight;
-
-          if (!paused && max > 0) {
-            const next = el.scrollTop + (dir * SPEED_PX_PER_SEC * dt) / 1000;
-            el.scrollTop = Math.max(0, Math.min(max, next));
-
-            if (dir === 1 && el.scrollTop >= max - EDGE_TOLERANCE_PX) {
-              scheduleResume(-1);
-            } else if (dir === -1 && el.scrollTop <= EDGE_TOLERANCE_PX) {
-              scheduleResume(1);
-            }
-          }
-          requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
+      let styleEl = document.getElementById('auto-scroll-style');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'auto-scroll-style';
+        document.head.appendChild(styleEl);
       }
 
-      // Always run the loop for every panel — tick() itself is a no-op
-      // while max <= 0, so this self-heals if a panel starts out fitting
-      // (e.g. window opened on the wrong screen, wrong font scale) and
-      // only overflows after a later resize/reflow, instead of relying on
-      // a one-time overflow check at page load that never re-fires.
-      document.querySelectorAll('.order-list-wrap').forEach(run);
+      function setup() {
+        const rules = [];
+
+        document.querySelectorAll('.order-list-wrap').forEach((wrap, i) => {
+          const inner = wrap.querySelector('.order-list');
+          if (!inner) return;
+
+          // Reset before measuring so a stale transform/animation from a
+          // previous layout doesn't skew scrollHeight or cause a visual
+          // jump when the animation below restarts.
+          inner.style.animation = 'none';
+          inner.style.transform = 'translateY(0)';
+
+          const distance = inner.scrollHeight - wrap.clientHeight;
+          if (distance <= 4) return;
+
+          const travelMs = (distance / SPEED_PX_PER_SEC) * 1000;
+          const totalMs = travelMs + END_PAUSE_MS * 2;
+          const pauseEndPct = (END_PAUSE_MS / totalMs) * 100;
+          const moveEndPct = ((END_PAUSE_MS + travelMs) / totalMs) * 100;
+          const name = 'auto-scroll-' + i;
+
+          rules.push(
+            '@keyframes ' + name + ' {' +
+            '0% { transform: translateY(0); }' +
+            pauseEndPct + '% { transform: translateY(0); }' +
+            moveEndPct + '% { transform: translateY(-' + distance + 'px); }' +
+            '100% { transform: translateY(-' + distance + 'px); }' +
+            '}'
+          );
+
+          inner.style.animation = name + ' ' + totalMs + 'ms linear infinite alternate';
+        });
+
+        styleEl.textContent = rules.join('\\n');
+      }
+
+      setup();
+
+      // Re-measure on resize (window moved to a different/differently
+      // sized screen, or the font's vmin-based scale changed) so the
+      // animation's travel distance never goes stale.
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setup, 300);
+      });
     })();
   </script>
 </body>
