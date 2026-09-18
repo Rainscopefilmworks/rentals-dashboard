@@ -262,9 +262,12 @@ app.get('/', async (req, res) => {
         requestAnimationFrame(tick);
       }
 
-      document.querySelectorAll('.order-list-wrap').forEach((el) => {
-        if (el.scrollHeight > el.clientHeight + 4) run(el);
-      });
+      // Always run the loop for every panel — tick() itself is a no-op
+      // while max <= 0, so this self-heals if a panel starts out fitting
+      // (e.g. window opened on the wrong screen, wrong font scale) and
+      // only overflows after a later resize/reflow, instead of relying on
+      // a one-time overflow check at page load that never re-fires.
+      document.querySelectorAll('.order-list-wrap').forEach(run);
     })();
   </script>
 </body>
