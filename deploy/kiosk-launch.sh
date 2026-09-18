@@ -1,6 +1,6 @@
 #!/bin/bash
 # Waits for the dashboard server to come up, then opens it fullscreen in
-# kiosk mode. Called via Hyprland exec-once, not run directly.
+# Firefox kiosk mode. Called via Hyprland exec-once, not run directly.
 
 URL="http://localhost:${PORT:-3000}"
 
@@ -9,11 +9,10 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 
-exec chromium \
-  --ozone-platform=wayland \
+export MOZ_ENABLE_WAYLAND=1
+
+exec firefox \
   --kiosk \
-  --noerrdialogs \
-  --disable-infobars \
-  --disable-session-crashed-bubble \
-  --incognito \
+  --no-remote \
+  --private-window \
   "$URL"

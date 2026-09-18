@@ -41,7 +41,7 @@ The dashboard auto-refreshes: the server polls the DB every 10s in the backgroun
 
 ## Deploy as a kiosk (Omarchy / Hyprland)
 
-For the wall-mounted iMac running [Omarchy](https://omarchy.org) (Arch Linux + Hyprland): one script installs the server as a systemd user service and opens it fullscreen in Chromium kiosk mode on login.
+For the wall-mounted iMac running [Omarchy](https://omarchy.org) (Arch Linux + Hyprland): one script installs the server as a systemd user service and opens it fullscreen in Firefox kiosk mode on login.
 
 ```bash
 git clone https://github.com/Rainscopefilmworks/rentals-dashboard.git
@@ -53,8 +53,8 @@ cp .env.example .env   # then edit .env with real DB credentials
 
 This:
 - Installs `deploy/rentals-dashboard.service` as a systemd user unit (`systemctl --user status rentals-dashboard.service`), auto-restarting on failure, and enables lingering so it survives without an active login session
-- Appends an `exec-once` line to your Hyprland `autostart.conf` (or `hyprland.conf` if that file doesn't exist) that runs `deploy/kiosk-launch.sh` — this waits for the server to respond, then launches Chromium fullscreen (`--kiosk`) pointed at the dashboard
-- Requires `chromium` to already be installed (`sudo pacman -S chromium`)
+- Appends an `exec-once` line to your Hyprland `autostart.conf` (or `hyprland.conf` if that file doesn't exist) that runs `deploy/kiosk-launch.sh` — this waits for the server to respond, then launches Firefox fullscreen (`--kiosk`, in a private window) pointed at the dashboard
+- Requires `firefox` to already be installed (`sudo pacman -S firefox`)
 
 Reload Hyprland to pick up the new autostart entry without a full reboot: `hyprctl reload`. On the next login (or reboot), the dashboard starts automatically and opens fullscreen.
 

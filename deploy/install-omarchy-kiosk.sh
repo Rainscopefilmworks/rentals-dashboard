@@ -1,6 +1,6 @@
 #!/bin/bash
 # Sets up the Rentals Dashboard to run as a systemd user service and open
-# fullscreen in kiosk mode on login, for Omarchy (Hyprland on Arch).
+# fullscreen in Firefox kiosk mode on login, for Omarchy (Hyprland on Arch).
 #
 # Run this from inside the cloned repo on the target machine:
 #   ./deploy/install-omarchy-kiosk.sh
@@ -19,8 +19,8 @@ if [ ! -d "$REPO_DIR/node_modules" ]; then
   exit 1
 fi
 
-if ! command -v chromium >/dev/null 2>&1; then
-  echo "Error: chromium not found. Install it first (e.g. 'sudo pacman -S chromium')." >&2
+if ! command -v firefox >/dev/null 2>&1; then
+  echo "Error: firefox not found. Install it first (e.g. 'sudo pacman -S firefox')." >&2
   exit 1
 fi
 
