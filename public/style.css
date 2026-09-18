@@ -9,7 +9,12 @@
 }
 
 html {
-  font-size: 150%;
+  /* Scale with the tighter of width/height so type (and everything sized in
+     rem off it) grows or shrinks to fit whatever monitor this is on, instead
+     of a size tuned for one specific kiosk display. 150% of the 16px default
+     at 1920x1080 (the reference kiosk screen) is ~24px, which is what the
+     clamp targets at that size; vmin keeps it proportional above and below. */
+  font-size: clamp(15px, 2.2vmin, 26px);
 }
 
 body {
@@ -58,11 +63,14 @@ body {
 }
 
 .board {
+  /* Always exactly 4 panels in a single row (see server.js) — fixed columns
+     that shrink with the viewport, not auto-fit, which would wrap to a
+     second row on narrower monitors and get clipped by the fixed-height,
+     overflow-hidden page below. */
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-6);
   align-items: stretch;
 }
@@ -233,8 +241,9 @@ body {
 
 .order-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2) var(--space-3);
   margin-top: var(--space-3);
 }
 
