@@ -53,7 +53,7 @@ cp .env.example .env   # then edit .env with real DB credentials
 
 This:
 - Installs `com.rainscope.rentals-dashboard` as a launchd agent (`launchctl list | grep rentals-dashboard`) — starts on login/boot, restarts on crash
-- Installs `com.rainscope.rentals-dashboard-kiosk` as a second launchd agent that waits for the server to respond, then opens Firefox fullscreen (`--kiosk`, in a private window) pointed at the dashboard
+- Installs `com.rainscope.rentals-dashboard-kiosk` as a second launchd agent that waits for the server to respond, then opens Firefox fullscreen (`--kiosk`) pointed at the dashboard, in its own dedicated profile (`~/Library/Application Support/rentals-dashboard/firefox-kiosk-profile`) — isolated from anyone's personal Firefox history/extensions/saved logins on the machine, always-private-browsing, and pre-configured to skip first-run/crash-restore prompts that `--kiosk` alone can't suppress
 - Requires Firefox to already be installed in `/Applications` (https://www.mozilla.org/firefox/)
 
 Logs go to `~/Library/Logs/rentals-dashboard/`.
@@ -70,6 +70,7 @@ launchctl unload ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
 rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
 launchctl unload ~/Library/LaunchAgents/com.rainscope.rentals-dashboard-kiosk.plist
 rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard-kiosk.plist
+rm -rf ~/Library/Application\ Support/rentals-dashboard/firefox-kiosk-profile
 ```
 
 ### Deploy as a background service only (no kiosk browser)

@@ -120,3 +120,4 @@ echo
 echo "To uninstall:"
 echo "  launchctl unload ${SERVER_PLIST} && rm ${SERVER_PLIST}"
 echo "  launchctl unload ${KIOSK_PLIST} && rm ${KIOSK_PLIST}"
+echo "  rm -rf ~/Library/Application\\ Support/rentals-dashboard/firefox-kiosk-profile"
