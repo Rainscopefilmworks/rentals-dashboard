@@ -39,9 +39,50 @@ Styled with the [Rainscope Design System](https://github.com/Rainscopefilmworks/
 
 The dashboard auto-refreshes: the server polls the DB every 10s in the background and pushes a live reload to any open tab when the data actually changes (see the "● Live" indicator in the footer).
 
-## Deploy as a kiosk (Omarchy / Hyprland)
+## Deploy as a kiosk (macOS / Apple Silicon)
 
-For the wall-mounted iMac running [Omarchy](https://omarchy.org) (Arch Linux + Hyprland): one script installs the server as a systemd user service and opens it fullscreen in Firefox kiosk mode on login.
+For the wall-mounted Mac: one script installs the server as a `launchd` user agent and opens it fullscreen in Firefox kiosk mode on login.
+
+```bash
+git clone https://github.com/Rainscopefilmworks/rentals-dashboard.git
+cd rentals-dashboard
+npm install
+cp .env.example .env   # then edit .env with real DB credentials
+./deploy/install-macos-kiosk.sh
+```
+
+This:
+- Installs `com.rainscope.rentals-dashboard` as a launchd agent (`launchctl list | grep rentals-dashboard`) — starts on login/boot, restarts on crash
+- Installs `com.rainscope.rentals-dashboard-kiosk` as a second launchd agent that waits for the server to respond, then opens Firefox fullscreen (`--kiosk`, in a private window) pointed at the dashboard
+- Requires Firefox to already be installed in `/Applications` (https://www.mozilla.org/firefox/)
+
+Logs go to `~/Library/Logs/rentals-dashboard/`.
+
+**Worth doing manually afterward:**
+- Enable auto-login for this account (System Settings → Users & Groups) — `RunAtLoad` launchd agents only fire once a user session starts, so without auto-login the kiosk won't come back up on its own after a reboot or power loss.
+- Disable display sleep and screen lock (System Settings → Lock Screen, and Displays → Advanced) so the dashboard doesn't blank or lock while unattended.
+
+To uninstall:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
+rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
+launchctl unload ~/Library/LaunchAgents/com.rainscope.rentals-dashboard-kiosk.plist
+rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard-kiosk.plist
+```
+
+### Deploy as a background service only (no kiosk browser)
+
+If you just want the server running in the background — e.g. for local development, or a machine that isn't the wall display — `./deploy/install-launchd.sh` installs only the `com.rainscope.rentals-dashboard` launchd agent, the same way. Uninstall with:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
+rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
+```
+
+### Deploy as a kiosk (Omarchy / Hyprland)
+
+Not currently used — the wall-mounted display is a Mac — but kept here in case that changes. For a machine running [Omarchy](https://omarchy.org) (Arch Linux + Hyprland): one script installs the server as a systemd user service and opens it fullscreen in Firefox kiosk mode on login.
 
 ```bash
 git clone https://github.com/Rainscopefilmworks/rentals-dashboard.git
@@ -68,12 +109,3 @@ rm ~/.config/systemd/user/rentals-dashboard.service
 ```
 
 Then remove the `exec-once` line for `kiosk-launch.sh` from your Hyprland config.
-
-### Deploy as a background service (macOS)
-
-If this ever runs on an actual Mac instead: `./deploy/install-launchd.sh` installs it as a `launchd` user agent (`com.rainscope.rentals-dashboard`) the same way — starts on login/boot, restarts on crash. Logs go to `~/Library/Logs/rentals-dashboard/`. Uninstall with:
-
-```bash
-launchctl unload ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
-rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
-```
