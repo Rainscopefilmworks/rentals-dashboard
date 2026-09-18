@@ -59,6 +59,7 @@ This:
 Logs go to `~/Library/Logs/rentals-dashboard/`.
 
 **Worth doing manually afterward:**
+- If the built-in display stays active alongside an external monitor (e.g. a laptop with the lid open): System Settings → Displays → Arrange, drag the menu bar strip onto the external monitor to make it the primary display. Firefox — like every macOS app — opens new windows on whichever display is primary, and there's no reliable launch flag to target a specific monitor instead, so this is the one-time fix if the dashboard opens on the wrong screen.
 - Enable auto-login for this account (System Settings → Users & Groups) — `RunAtLoad` launchd agents only fire once a user session starts, so without auto-login the kiosk won't come back up on its own after a reboot or power loss.
 - Disable display sleep and screen lock (System Settings → Lock Screen, and Displays → Advanced) so the dashboard doesn't blank or lock while unattended.
 
