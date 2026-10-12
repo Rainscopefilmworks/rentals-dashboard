@@ -1,0 +1,13 @@
+services:
+  rentals-dashboard:
+    build: .
+    image: rentals-dashboard
+    env_file: .env
+    environment:
+      PORT: 3000
+    ports:
+      - "${PORT:-3000}:3000"
+    # Lets DB_HOST=host.docker.internal reach a MySQL server on the host machine
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

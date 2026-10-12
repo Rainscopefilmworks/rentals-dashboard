@@ -1,0 +1,10 @@
+node_modules
+.env
+.git
+.gitignore
+.design-system-ref
+.DS_Store
+deploy
+README.md
+Dockerfile
+compose.yaml

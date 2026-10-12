@@ -39,6 +39,27 @@ Styled with the [Rainscope Design System](https://github.com/Rainscopefilmworks/
 
 The dashboard auto-refreshes: the server polls the DB every 10s in the background and pushes a live reload to any open tab when the data actually changes (see the "● Live" indicator in the footer).
 
+## Run with Docker
+
+With `.env` filled in (step 2 above), build and start the container:
+
+```bash
+docker compose up -d --build
+```
+
+Then open [http://localhost:3000](http://localhost:3000) (or whatever `PORT` is set to in `.env` — it sets the host port; the app always listens on 3000 inside the container). The container restarts automatically unless stopped, and has a healthcheck (`docker compose ps` shows its status).
+
+- **DB on the same machine:** inside the container `localhost` means the container itself, so set `DB_HOST=host.docker.internal` to reach a MySQL server running on the host.
+- Logs: `docker compose logs -f`
+- Stop: `docker compose down`
+
+Without Compose:
+
+```bash
+docker build -t rentals-dashboard .
+docker run -d --name rentals-dashboard --env-file .env -p 3000:3000 --restart unless-stopped rentals-dashboard
+```
+
 ## Deploy as a kiosk (macOS / Apple Silicon)
 
 For the wall-mounted Mac: one script installs the server as a `launchd` user agent and opens it fullscreen in Firefox kiosk mode on login.
