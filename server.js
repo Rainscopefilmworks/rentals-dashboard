@@ -39,6 +39,7 @@ const QUERIES = {
     SELECT ${BASE_COLUMNS}
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
+      AND p.projects_archived = 0
       AND p.projects_dates_use_start BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
       ${EXCLUDE_MISSING_ITEMS}
       ${EXCLUDE_RETURNED}
@@ -49,6 +50,7 @@ const QUERIES = {
     SELECT ${BASE_COLUMNS}
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
+      AND p.projects_archived = 0
       AND p.projects_dates_use_start <= CURDATE()
       AND p.projects_dates_use_end > CURDATE() + INTERVAL 1 DAY
       AND LOWER(s.projectsStatuses_name) = 'checked out'
@@ -60,6 +62,7 @@ const QUERIES = {
     SELECT ${BASE_COLUMNS}
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
+      AND p.projects_archived = 0
       AND p.projects_dates_use_end BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 DAY
       ${EXCLUDE_MISSING_ITEMS}
     ORDER BY p.projects_dates_use_end ASC
@@ -68,6 +71,7 @@ const QUERIES = {
     SELECT ${BASE_COLUMNS}
     ${BASE_JOIN}
     WHERE p.projects_deleted = 0
+      AND p.projects_archived = 0
       AND s.projectsStatuses_name = 'Missing Items'
     ORDER BY p.projects_dates_use_end DESC
   `,
