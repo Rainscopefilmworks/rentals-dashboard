@@ -100,9 +100,11 @@ body {
 }
 
 .glass-panel {
+  /* No backdrop-filter blur: the page behind is a flat color, so it was
+     invisible, but it got recomputed every frame under the auto-scrolling
+     lists — enough to make scrolling choppy on the 4K kiosk, which renders
+     in software. */
   background: var(--color-card-bg);
-  -webkit-backdrop-filter: blur(var(--blur-glass));
-  backdrop-filter: blur(var(--blur-glass));
   border: var(--border-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
