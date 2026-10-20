@@ -175,8 +175,14 @@ app.get('/', async (req, res) => {
 <body class="theme-rentals">
   <div class="page">
     <header class="page-header">
-      <h1>Rentals Dashboard</h1>
-      <p class="page-subtitle">Live order logistics — read-only view of <code>projects</code></p>
+      <div class="page-title">
+        <h1>Rentals Dashboard</h1>
+        <p class="page-subtitle">Live order logistics — read-only view of <code>projects</code></p>
+      </div>
+      <div class="clock" aria-live="off">
+        <div class="clock-time" id="clock-time"></div>
+        <div class="clock-date" id="clock-date"></div>
+      </div>
     </header>
     <main class="board">
       ${renderSection({
@@ -221,6 +227,22 @@ app.get('/', async (req, res) => {
   <script>
     const events = new EventSource('/events');
     events.onmessage = () => location.reload();
+
+    (function liveClock() {
+      const timeEl = document.getElementById('clock-time');
+      const dateEl = document.getElementById('clock-date');
+      const timeFmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
+      const dateFmt = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+      function tick() {
+        const now = new Date();
+        timeEl.textContent = timeFmt.format(now);
+        dateEl.textContent = dateFmt.format(now);
+        // Re-align to the top of each second so the minute flips on time.
+        setTimeout(tick, 1000 - now.getMilliseconds());
+      }
+      tick();
+    })();
 
     (function autoScrollPanels() {
       // Driven by a CSS transform animation, not JS-stepped scrollTop:
