@@ -229,7 +229,10 @@ app.get('/', async (req, res) => {
       // describes a kiosk window sitting on a monitor nobody's actively
       // using. A CSS animation keeps running on the compositor regardless
       // of window focus.
-      const SPEED_PX_PER_SEC = 26;
+      // Speed is in rem so it scales with the type: 26px/s at the 24px
+      // root size of a 1920x1080 screen, faster on a bigger (e.g. native
+      // 4K portrait) display where rows are proportionally taller.
+      const SPEED_REM_PER_SEC = 26 / 24;
       const END_PAUSE_MS = 2600;
 
       let styleEl = document.getElementById('auto-scroll-style');
@@ -241,6 +244,8 @@ app.get('/', async (req, res) => {
 
       function setup() {
         const rules = [];
+        const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const speedPxPerSec = SPEED_REM_PER_SEC * remPx;
 
         document.querySelectorAll('.order-list-wrap').forEach((wrap, i) => {
           const inner = wrap.querySelector('.order-list');
@@ -255,7 +260,7 @@ app.get('/', async (req, res) => {
           const distance = inner.scrollHeight - wrap.clientHeight;
           if (distance <= 4) return;
 
-          const travelMs = (distance / SPEED_PX_PER_SEC) * 1000;
+          const travelMs = (distance / speedPxPerSec) * 1000;
           const totalMs = travelMs + END_PAUSE_MS * 2;
           const pauseEndPct = (END_PAUSE_MS / totalMs) * 100;
           const moveEndPct = ((END_PAUSE_MS + travelMs) / totalMs) * 100;

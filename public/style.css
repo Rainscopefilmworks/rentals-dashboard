@@ -17,6 +17,18 @@ html {
   font-size: clamp(15px, 2.2vmin, 26px);
 }
 
+@media (orientation: portrait) {
+  html {
+    /* The kiosk is a vertical 2160x4096 display. Panels sit two across here
+       (see .board below), so each gets about half the screen width — the
+       same share of space a 4-across panel gets on a 1920x1080 landscape
+       screen at 24px. Sizing off width at 2.2vw keeps that same proportion,
+       and the higher cap lets type keep growing if the display runs at its
+       native resolution instead of a HiDPI-scaled one. */
+    font-size: clamp(15px, 2.2vw, 52px);
+  }
+}
+
 body {
   margin: 0;
   height: 100vh;
@@ -63,7 +75,8 @@ body {
 }
 
 .board {
-  /* Always exactly 4 panels in a single row (see server.js) — fixed columns
+  /* Always exactly 4 panels (see server.js), in a single row on landscape
+     screens (2x2 on portrait, below) — fixed columns
      that shrink with the viewport, not auto-fit, which would wrap to a
      second row on narrower monitors and get clipped by the fixed-height,
      overflow-hidden page below. */
@@ -73,6 +86,17 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-6);
   align-items: stretch;
+}
+
+@media (orientation: portrait) {
+  .board {
+    /* On a vertical display four columns would be far too narrow, so the
+       same 4 panels go 2x2 instead. Rows split the height evenly; minmax(0,…)
+       lets a long list clip (and auto-scroll) inside its panel instead of
+       stretching the row. */
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .glass-panel {
