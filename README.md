@@ -60,9 +60,69 @@ docker build -t rentals-dashboard .
 docker run -d --name rentals-dashboard --env-file .env -p 3000:3000 --restart unless-stopped rentals-dashboard
 ```
 
+**Updating:** the image is built from the checked-out code (`build: .`), not pulled from a registry. So Dockge's **Update** button (which runs `docker compose pull`) won't pick up new commits. In the stack's folder, run:
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+Then restart the kiosk browser (or reboot the kiosk machine). An open page doesn't reload on its own when the container restarts.
+
+## Deploy as a kiosk (Debian / cage)
+
+This is the current wall display: a Debian 13 server (`rs-server`) driving a 4096x2160 TV **mounted vertically**. The server runs in Docker (see above). The screen is driven by [cage](https://github.com/cage-kiosk/cage), a minimal Wayland compositor that runs one app fullscreen, with Chromium in kiosk mode inside it. There's no X server, so use `wlr-randr` rather than `xrandr` for anything display-related.
+
+On portrait screens the dashboard automatically switches its four panels to a 2x2 grid.
+
+1. Install the packages:
+
+   ```bash
+   sudo apt install cage chromium wlr-randr curl
+   ```
+
+2. Create a `kiosk` user, if there isn't one, and install the launcher as its startup script:
+
+   ```bash
+   sudo useradd -m -s /bin/bash kiosk
+   sudo cp deploy/kiosk-launch-cage.sh /home/kiosk/kiosk.sh
+   sudo chown kiosk:kiosk /home/kiosk/kiosk.sh
+   sudo chmod +x /home/kiosk/kiosk.sh
+   ```
+
+3. Auto-login `kiosk` on tty1 and start the launcher from its login shell. This is the standard Debian approach; rs-server's own autologin config wasn't recorded when this section was written.
+
+   ```bash
+   sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+   printf '[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin kiosk --noclear %%I $TERM\n' \
+     | sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf
+   echo '[ "$(tty)" = /dev/tty1 ] && exec /home/kiosk/kiosk.sh' | sudo tee -a /home/kiosk/.bash_profile
+   sudo chown kiosk:kiosk /home/kiosk/.bash_profile
+   sudo reboot
+   ```
+
+What [`deploy/kiosk-launch-cage.sh`](deploy/kiosk-launch-cage.sh) does: it waits for `localhost:3000` to respond and starts cage. Inside cage, it rotates the output (`wlr-randr --output HDMI-A-1 --transform 270`) before starting Chromium, so Chromium opens at portrait size. The rotation runs in a retry loop. A single attempt right after cage starts fails with `drmModePageFlip failed: Device or resource busy`, and Chromium then opens in landscape. Output goes to `/home/kiosk/kiosk.log`. A good boot logs `kiosk: rotation applied after N attempt(s)`:
+
+```bash
+sudo grep "kiosk:" /home/kiosk/kiosk.log | tail -2
+```
+
+**Adjusting the display:**
+- **Different TV or port:** the launcher assumes the output is named `HDMI-A-1`. To list outputs and check the current rotation from an SSH session:
+
+  ```bash
+  sudo -u kiosk env XDG_RUNTIME_DIR=/run/user/$(id -u kiosk) WAYLAND_DISPLAY=wayland-0 wlr-randr
+  ```
+
+  Check the socket name with `sudo ls /run/user/$(id -u kiosk)` if `wayland-0` doesn't work.
+- **Upside down:** change both `270`s in `kiosk.sh` to `90`.
+- **Smoother scrolling:** the TV defaults to 4096x2160 at 24 Hz. Adding `--mode 3840x2160@30` to the `wlr-randr --output …` line gives 30 Hz.
+- **GPU compositing:** Chromium is started with `--disable-gpu-compositing`, so compositing happens on the CPU. Removing that flag moves it to the GPU. Put the flag back if the screen comes up black or flickers.
+- After editing `kiosk.sh`, reboot to apply it.
+
 ## Deploy as a kiosk (macOS / Apple Silicon)
 
-For the wall-mounted Mac: one script installs the server as a `launchd` user agent and opens it fullscreen in Firefox kiosk mode on login.
+For a Mac driving the wall display: one script installs the server as a `launchd` user agent and opens it fullscreen in Firefox kiosk mode on login.
 
 ```bash
 git clone https://github.com/Rainscopefilmworks/rentals-dashboard.git
@@ -105,7 +165,7 @@ rm ~/Library/LaunchAgents/com.rainscope.rentals-dashboard.plist
 
 ### Deploy as a kiosk (Omarchy / Hyprland)
 
-Not currently used — the wall-mounted display is a Mac — but kept here in case that changes. For a machine running [Omarchy](https://omarchy.org) (Arch Linux + Hyprland): one script installs the server as a systemd user service and opens it fullscreen in Firefox kiosk mode on login.
+Not currently used (the wall display runs Debian/cage, above), but kept here in case that changes. For a machine running [Omarchy](https://omarchy.org) (Arch Linux + Hyprland): one script installs the server as a systemd user service and opens it fullscreen in Firefox kiosk mode on login.
 
 ```bash
 git clone https://github.com/Rainscopefilmworks/rentals-dashboard.git
